@@ -9,9 +9,16 @@ public class Node : MonoBehaviour
     private float size_x;
     private float size_z;
 
+    private bool divided;
+
     private List<GameObject> child_nodes;
 
     private int no_divisions = 4;
+
+    Vector3 bottom_left_pos;
+    Vector3 bottom_right_pos;
+    Vector3 top_left_pos;
+    Vector3 top_right_pos;
 
 
     private void Start()
@@ -30,6 +37,17 @@ public class Node : MonoBehaviour
 
         position = _position;
 
+        float offset_x = size_x / 10;
+        float offset_z = size_z / 10;
+
+        bottom_left_pos = new Vector3(position.x + offset_x, position.y, position.z + offset_z);
+
+        bottom_right_pos = new Vector3(position.x + size_x - offset_x, position.y, position.z + offset_z);
+
+        top_right_pos = new Vector3(position.x + size_x - offset_x, position.y, position.z + size_z - offset_z);
+
+        top_left_pos = new Vector3(position.x + offset_x, position.y, position.z + size_z - offset_z);
+
         transform.parent = _parent_node.transform;
 
         if (_depth > 0)
@@ -37,6 +55,7 @@ public class Node : MonoBehaviour
             // Check if this node needs spliting
             if(DivideCheck(_positions))
             {
+                divided = true;
                 Divide(_positions, _depth, _node, _parent_node);
             }
         }
@@ -101,6 +120,29 @@ public class Node : MonoBehaviour
     }
 
 
+    /*
+    public void AddFuzz()
+    {
+        // Take each corner and add 10% fuzz
+
+        float fuzz_x = size_x / 10;
+        float fuzz_z = size_z / 10;
+
+        bottom_left_pos.x += Random.Range((bottom_left_pos.x - fuzz_x), (bottom_left_pos.x + fuzz_x));
+
+
+
+
+        if (child_nodes.Count == 0)
+            return;
+
+        foreach(GameObject child in child_nodes)
+        {
+            child.GetComponent<Node>().AddFuzz();
+        }
+    }*/
+
+
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.blue;
@@ -116,5 +158,16 @@ public class Node : MonoBehaviour
 
         // Top Left to Bottom Left
         Gizmos.DrawLine(new Vector3(position.x, 0, position.z + size_z), position);
+
+        // if this node has not been divided we have a building area...
+        if (!divided)
+        {
+            Gizmos.color = Color.red;
+
+            Gizmos.DrawLine(bottom_left_pos, bottom_right_pos);
+            Gizmos.DrawLine(bottom_right_pos, top_right_pos);
+            Gizmos.DrawLine(top_right_pos, top_left_pos);
+            Gizmos.DrawLine(top_left_pos, bottom_left_pos);
+        }
     }
 }

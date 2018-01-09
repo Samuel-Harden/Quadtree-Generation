@@ -7,13 +7,14 @@ public class QuadtreeRoadGen : MonoBehaviour
     [SerializeField] int grid_height;
     [SerializeField] int grid_width;
     [SerializeField] int no_positions;
-    [SerializeField] GameObject position_marker;
     [SerializeField] int max_depth;
 
+    [SerializeField] bool show_positions;
+
+    [SerializeField] GameObject node;
     [SerializeField] GameObject node_parent;
 
     private List<Vector3> positions;
-    [SerializeField] GameObject node;
 
 
     void Start ()
@@ -30,9 +31,8 @@ public class QuadtreeRoadGen : MonoBehaviour
     {
         for(int i = 0; i < no_positions; i++)
         {
-            Vector3 pos = new Vector3(Random.Range(0, grid_width), 0, Random.Range(0, grid_height));
-
-            Instantiate(position_marker, pos, Quaternion.identity);
+            Vector3 pos = new Vector3(Random.Range(0, grid_width), 0,
+                Random.Range(0, grid_height));
 
             positions.Add(pos);
         }
@@ -47,6 +47,26 @@ public class QuadtreeRoadGen : MonoBehaviour
 
         var node_obj = Instantiate(node, pos, Quaternion.identity);
 
-        node_obj.GetComponent<Node>().Initialise(Vector3.zero, size_x, size_z, positions, max_depth, node, node_parent.transform);
+        node_obj.GetComponent<Node>().Initialise(Vector3.zero,
+            size_x, size_z, positions, max_depth, node, node_parent.transform);
+
+        //node_obj.GetComponent<Node>().AddFuzz();
+    }
+
+
+    private void OnDrawGizmos()
+    {
+        if (!Application.isPlaying)
+            return;
+
+        if (!show_positions)
+            return;
+
+        Gizmos.color = Color.white;
+
+        foreach (Vector3 pos in positions)
+        {
+            Gizmos.DrawWireSphere(pos, 1);
+        }
     }
 }
