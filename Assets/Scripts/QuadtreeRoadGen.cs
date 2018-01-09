@@ -102,7 +102,7 @@ public class QuadtreeRoadGen : MonoBehaviour
         node_obj.GetComponent<Node>().SetDivideCount(divide_count);
 
         node_obj.GetComponent<Node>().Initialise(Vector3.zero,
-            size_x, size_z, new_positions, max_depth, node, node_parent.transform);
+            size_x, size_z, new_positions, max_depth, node, node_parent.transform, 0);
 
         //node_obj.GetComponent<Node>().AddFuzz();
     }

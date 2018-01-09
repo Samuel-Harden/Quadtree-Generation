@@ -9,30 +9,40 @@ public class ProceduralMesh : MonoBehaviour
     private List<Vector3> vertices;
     private List<int> triangles;
 
-    void Start()
-    {
-        mesh = GetComponent<MeshFilter>().mesh;
+    public float scale = 1.0f;
 
-        MakeBuilding();
+    private float adj_scale;
+
+
+    public void Initialise(float _scale)
+    {
+        scale = _scale;
+
+        mesh = GetComponent<MeshFilter>().mesh;
+        adj_scale = scale * 0.5f;
+
+        ConstructMesh();
         UpdateMesh();
+
+
     }
 
 
-    void MakeBuilding()
+    void ConstructMesh()
     {
         vertices = new List<Vector3>();
         triangles = new List<int>();
 
         for (int i = 0; i < 6; i++)
         {
-            MakeFace(i);
+            ConstructFace(i);
         }
     }
 
 
-    void MakeFace(int _dir)
+    void ConstructFace(int _dir)
     {
-        vertices.AddRange(CubeMeshData.FaceVertices(_dir));
+        vertices.AddRange(CubeMeshData.FaceVertices(_dir, adj_scale));
 
         int v_count = vertices.Count;
 

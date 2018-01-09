@@ -9,15 +9,10 @@ public class PerlinPopGen : MonoBehaviour
     private float perlin_noise = 50;
 
 
-	// Use this for initialization
-	void Start ()
-    {
-        population = new List<int>();
-	}
-
-
     public void GeneratePopData(int _width, int _height, List<Vector3> _positions)
     {
+        population = new List<int>();
+
         float seed = Random.Range(0, 100);
 
         for (int h = 0; h < _height; h++)

@@ -81,7 +81,6 @@
     <Compile Include="Assets\Scripts\CubeMeshData.cs" />
     <Compile Include="Assets\Scripts\Node.cs" />
     <Compile Include="Assets\Scripts\PerlinPopGen.cs" />
-    <Compile Include="Assets\Scripts\ProceduralBuilding.cs" />
     <Compile Include="Assets\Scripts\ProceduralMesh.cs" />
     <Compile Include="Assets\Scripts\QuadTreeRoot.cs" />
     <Compile Include="Assets\Scripts\QuadtreeRoadGen.cs" />

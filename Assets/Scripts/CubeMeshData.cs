@@ -5,14 +5,14 @@ using UnityEngine;
 public static class CubeMeshData
 {
     public static Vector3[] vertices = {
-        new Vector3( 1,  1,  1),
-        new Vector3(-1,  1,  1),
-        new Vector3(-1, -1,  1),
-        new Vector3( 1, -1,  1),
-        new Vector3(-1,  1, -1),
-        new Vector3( 1,  1, -1),
-        new Vector3( 1, -1, -1),
-        new Vector3(-1, -1, -1)
+        new Vector3( 1,  2,  1),
+        new Vector3(-1,  2,  1),
+        new Vector3(-1, -2,  1),
+        new Vector3( 1, -2,  1),
+        new Vector3(-1,  2, -1),
+        new Vector3( 1,  2, -1),
+        new Vector3( 1, -2, -1),
+        new Vector3(-1, -2, -1)
     };
 
     public static int[][] face_triangles = {
@@ -24,13 +24,13 @@ public static class CubeMeshData
         new int [] { 3, 2, 7, 6}
     };
 
-    public static Vector3[] FaceVertices(int _dir)
+    public static Vector3[] FaceVertices(int _dir, float _scale)
     {
         Vector3[] fv = new Vector3[4];
 
         for(int i = 0; i < fv.Length; i++)
         {
-            fv[i] = vertices[face_triangles[_dir][i]];
+            fv[i] = vertices[face_triangles[_dir][i]] * _scale;
         }
 
         return fv;

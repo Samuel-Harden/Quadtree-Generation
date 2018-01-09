@@ -14,6 +14,7 @@ public class Node : MonoBehaviour
     private List<GameObject> child_nodes;
 
     private int no_divisions = 4;
+    private int no_build_depth = 3;
 
     private int divide_count;
 
@@ -22,6 +23,7 @@ public class Node : MonoBehaviour
     Vector3 top_left_pos;
     Vector3 top_right_pos;
 
+    [SerializeField] GameObject building;
 
     private void Start()
     {
@@ -29,9 +31,9 @@ public class Node : MonoBehaviour
     }
 
 
-    public void Initialise(Vector3 _position, float _size_x, float _size_z, List<Vector3> _positions, int _depth, GameObject _node, Transform _parent_node)
+    public void Initialise(Vector3 _position, float _size_x, float _size_z,
+        List<Vector3> _positions, int _depth, GameObject _node, Transform _parent_node, int _division)
     {
-
         child_nodes = new List<GameObject>();
 
         size_x = _size_x;
@@ -58,11 +60,15 @@ public class Node : MonoBehaviour
             if(DivideCheck(_positions))
             {
                 divided = true;
-                Divide(_positions, _depth, _node, _parent_node);
+                _division++;
+                Divide(_positions, _depth, _node, _parent_node, _division);
             }
         }
 
-        GenerateBuilding();
+
+        // if this node hasn't been divided, and it deeper than the second division
+        if (!divided && _division > no_build_depth)
+            GenerateBuilding();
     }
 
 
@@ -80,7 +86,7 @@ public class Node : MonoBehaviour
             }
 
 
-            if(count == divide_count)
+            if(count >= divide_count)
             {
                 return true;
             }
@@ -90,7 +96,7 @@ public class Node : MonoBehaviour
     }
 
 
-    void Divide(List<Vector3> _positions, int _depth, GameObject _node, Transform _parent_node)
+    void Divide(List<Vector3> _positions, int _depth, GameObject _node, Transform _parent_node, int _division)
     {
         // Each recursion this should go down one
         _depth -= 1;
@@ -111,7 +117,7 @@ public class Node : MonoBehaviour
 
             node_obj.GetComponent<Node>().SetDivideCount(divide_count);
 
-            node_obj.GetComponent<Node>().Initialise(new_position, new_size_x, new_size_z, _positions, _depth, _node, _parent_node.transform);
+            node_obj.GetComponent<Node>().Initialise(new_position, new_size_x, new_size_z, _positions, _depth, _node, _parent_node.transform, _division);
 
             new_position.x += size_x / 2;
 
@@ -152,7 +158,13 @@ public class Node : MonoBehaviour
 
     private void GenerateBuilding()
     {
+        var build = Instantiate(building, position, Quaternion.identity);
 
+        float scale = size_x / 10 * 6;
+
+        build.GetComponent<ProceduralMesh>().Initialise(scale);
+
+        build.transform.position = new Vector3(position.x + (size_x / 2), scale, (position.z + size_z / 2));
     }
 
 
