@@ -15,6 +15,8 @@ public class Node : MonoBehaviour
 
     private int no_divisions = 4;
 
+    private int divide_count;
+
     Vector3 bottom_left_pos;
     Vector3 bottom_right_pos;
     Vector3 top_left_pos;
@@ -40,13 +42,13 @@ public class Node : MonoBehaviour
         float offset_x = size_x / 10;
         float offset_z = size_z / 10;
 
-        bottom_left_pos = new Vector3(position.x + offset_x, position.y, position.z + offset_z);
+        bottom_left_pos  = new Vector3(position.x + offset_x, position.y, position.z + offset_z);
 
         bottom_right_pos = new Vector3(position.x + size_x - offset_x, position.y, position.z + offset_z);
 
-        top_right_pos = new Vector3(position.x + size_x - offset_x, position.y, position.z + size_z - offset_z);
+        top_right_pos    = new Vector3(position.x + size_x - offset_x, position.y, position.z + size_z - offset_z);
 
-        top_left_pos = new Vector3(position.x + offset_x, position.y, position.z + size_z - offset_z);
+        top_left_pos     = new Vector3(position.x + offset_x, position.y, position.z + size_z - offset_z);
 
         transform.parent = _parent_node.transform;
 
@@ -59,13 +61,15 @@ public class Node : MonoBehaviour
                 Divide(_positions, _depth, _node, _parent_node);
             }
         }
+
+        GenerateBuilding();
     }
 
 
     bool DivideCheck(List<Vector3> _positions)
     {
         int count = 0;
-        //if Node contains more than one position, divide!
+
         foreach(Vector3 pos in _positions)
         {
             // is this position within bounds of node
@@ -75,7 +79,8 @@ public class Node : MonoBehaviour
                 count++;
             }
 
-            if(count == 2)
+
+            if(count == divide_count)
             {
                 return true;
             }
@@ -103,6 +108,8 @@ public class Node : MonoBehaviour
             var node_obj = Instantiate(_node, new_position, Quaternion.identity);
 
             child_nodes.Add(node_obj);
+
+            node_obj.GetComponent<Node>().SetDivideCount(divide_count);
 
             node_obj.GetComponent<Node>().Initialise(new_position, new_size_x, new_size_z, _positions, _depth, _node, _parent_node.transform);
 
@@ -141,6 +148,18 @@ public class Node : MonoBehaviour
             child.GetComponent<Node>().AddFuzz();
         }
     }*/
+
+
+    private void GenerateBuilding()
+    {
+
+    }
+
+
+    public void SetDivideCount(int _count)
+    {
+        divide_count = _count;
+    }
 
 
     private void OnDrawGizmos()

@@ -1,4 +1,4 @@
 sceneSetups:
-- path: Assets/Quadtree Roads.unity
+- path: Assets/Scenes/Quadtree Roads.unity
   isLoaded: 1
   isActive: 1
