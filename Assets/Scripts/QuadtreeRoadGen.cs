@@ -99,10 +99,12 @@ public class QuadtreeRoadGen : MonoBehaviour
 
         var node_obj = Instantiate(node, pos, Quaternion.identity);
 
+        var build_gen =  this.gameObject.GetComponent<BuildingGenerator>();
+
         node_obj.GetComponent<Node>().SetDivideCount(divide_count);
 
         node_obj.GetComponent<Node>().Initialise(Vector3.zero,
-            size_x, size_z, new_positions, max_depth, node, node_parent.transform, 0);
+            size_x, size_z, new_positions, max_depth, node, node_parent.transform, build_gen, 0);
 
         //node_obj.GetComponent<Node>().AddFuzz();
     }

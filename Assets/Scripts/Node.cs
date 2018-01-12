@@ -23,8 +23,6 @@ public class Node : MonoBehaviour
     Vector3 top_left_pos;
     Vector3 top_right_pos;
 
-    [SerializeField] GameObject building;
-
     private void Start()
     {
         child_nodes = new List<GameObject>();
@@ -32,7 +30,7 @@ public class Node : MonoBehaviour
 
 
     public void Initialise(Vector3 _position, float _size_x, float _size_z,
-        List<Vector3> _positions, int _depth, GameObject _node, Transform _parent_node, int _division)
+        List<Vector3> _positions, int _depth, GameObject _node, Transform _parent_node, BuildingGenerator _build_gen, int _division)
     {
         child_nodes = new List<GameObject>();
 
@@ -61,14 +59,14 @@ public class Node : MonoBehaviour
             {
                 divided = true;
                 _division++;
-                Divide(_positions, _depth, _node, _parent_node, _division);
+                Divide(_positions, _depth, _node, _parent_node, _build_gen, _division);
             }
         }
 
 
-        // if this node hasn't been divided, and it deeper than the second division
+        // if this node hasn't been divided, and it deeper than the x division
         if (!divided && _division > no_build_depth)
-            GenerateBuilding();
+            GenerateBuilding(_build_gen);
     }
 
 
@@ -96,7 +94,7 @@ public class Node : MonoBehaviour
     }
 
 
-    void Divide(List<Vector3> _positions, int _depth, GameObject _node, Transform _parent_node, int _division)
+    void Divide(List<Vector3> _positions, int _depth, GameObject _node, Transform _parent_node, BuildingGenerator _build_gen, int _division)
     {
         // Each recursion this should go down one
         _depth -= 1;
@@ -117,7 +115,7 @@ public class Node : MonoBehaviour
 
             node_obj.GetComponent<Node>().SetDivideCount(divide_count);
 
-            node_obj.GetComponent<Node>().Initialise(new_position, new_size_x, new_size_z, _positions, _depth, _node, _parent_node.transform, _division);
+            node_obj.GetComponent<Node>().Initialise(new_position, new_size_x, new_size_z, _positions, _depth, _node, _parent_node.transform, _build_gen, _division);
 
             new_position.x += size_x / 2;
 
@@ -156,15 +154,21 @@ public class Node : MonoBehaviour
     }*/
 
 
-    private void GenerateBuilding()
+    private void GenerateBuilding(BuildingGenerator _build_gen)
     {
-        var build = Instantiate(building, position, Quaternion.identity);
-
         float scale = size_x / 10 * 6;
 
-        build.GetComponent<ProceduralMesh>().Initialise(scale);
+        var new_building = _build_gen.GenerateBuilding(transform.position, (size_x / 2), (size_z / 2), scale);
 
-        build.transform.position = new Vector3(position.x + (size_x / 2), scale, (position.z + size_z / 2));
+        //var build = Instantiate(building, position, Quaternion.identity);
+
+        //float scale = size_x / 10 * 6;
+
+        //build.GetComponent<ProceduralMesh>().Initialise(scale);
+
+        new_building.transform.parent = this.transform;
+
+        //build.transform.position = new Vector3(position.x + (size_x / 2), scale, position.z + (size_z / 2));
     }
 
 
