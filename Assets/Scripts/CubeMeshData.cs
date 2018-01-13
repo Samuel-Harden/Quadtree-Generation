@@ -4,6 +4,7 @@ using UnityEngine;
 
 public static class CubeMeshData
 {
+    
     public static Vector3[] vertices = {
         new Vector3( 1,  2,  1),
         new Vector3(-1,  2,  1),
