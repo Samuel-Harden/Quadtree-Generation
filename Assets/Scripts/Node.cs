@@ -14,7 +14,7 @@ public class Node : MonoBehaviour
     private List<GameObject> child_nodes;
 
     private int no_divisions = 4;
-    private int no_build_depth = 3;
+    private int no_build_depth = 2;
 
     private int divide_count;
 
@@ -30,8 +30,10 @@ public class Node : MonoBehaviour
 
 
     public void Initialise(Vector3 _position, float _size_x, float _size_z,
-        List<Vector3> _positions, int _depth, GameObject _node, Transform _parent_node, BuildingGenerator _build_gen, int _division)
+        List<Vector3> _positions, int _depth, GameObject _node, Transform _parent_node, List<Vector3> _junction_positions, List<Node> _nodes, BuildingGenerator _build_gen, int _division)
     {
+        //Debug.Log("Added Node");
+
         child_nodes = new List<GameObject>();
 
         size_x = _size_x;
@@ -39,6 +41,13 @@ public class Node : MonoBehaviour
 
         position = _position;
 
+        // Add all possible juction positions to list
+        _junction_positions.Add(position); // Bottom Left
+        _junction_positions.Add(new Vector3(position.x + size_x, 0, position.z)); // Bottom Right
+        _junction_positions.Add(new Vector3(position.x, 0, position.z + size_z)); // Top Left
+        _junction_positions.Add(new Vector3(position.x + size_x, 0, position.z + size_z)); // Top Right
+
+        //Positions used to draw lin renders...
         float offset_x = size_x / 10;
         float offset_z = size_z / 10;
 
@@ -59,7 +68,7 @@ public class Node : MonoBehaviour
             {
                 divided = true;
                 _division++;
-                Divide(_positions, _depth, _node, _parent_node, _build_gen, _division);
+                Divide(_positions, _depth, _node, _parent_node, _junction_positions, _nodes, _build_gen, _division);
             }
         }
 
@@ -94,7 +103,7 @@ public class Node : MonoBehaviour
     }
 
 
-    void Divide(List<Vector3> _positions, int _depth, GameObject _node, Transform _parent_node, BuildingGenerator _build_gen, int _division)
+    void Divide(List<Vector3> _positions, int _depth, GameObject _node, Transform _parent_node, List<Vector3> _junction_positions, List<Node> _nodes, BuildingGenerator _build_gen, int _division)
     {
         // Each recursion this should go down one
         _depth -= 1;
@@ -109,13 +118,15 @@ public class Node : MonoBehaviour
         // Order (Bottom left, Bottom right, Top left, Top right)
         for (int i = 0; i < no_divisions; i++)
         {
-            var node_obj = Instantiate(_node, new_position, Quaternion.identity);
+            var node_obj = Instantiate(_node, new_position, _node.transform.rotation);
+
+            _nodes.Add(node_obj.GetComponent<Node>());
 
             child_nodes.Add(node_obj);
 
             node_obj.GetComponent<Node>().SetDivideCount(divide_count);
 
-            node_obj.GetComponent<Node>().Initialise(new_position, new_size_x, new_size_z, _positions, _depth, _node, _parent_node.transform, _build_gen, _division);
+            node_obj.GetComponent<Node>().Initialise(new_position, new_size_x, new_size_z, _positions, _depth, _node, _parent_node.transform, _junction_positions, _nodes, _build_gen, _division);
 
             new_position.x += size_x / 2;
 
@@ -180,7 +191,7 @@ public class Node : MonoBehaviour
 
     private void OnDrawGizmos()
     {
-        Gizmos.color = Color.blue;
+        /*Gizmos.color = Color.blue;
 
         // Bottom Left to Bottom Right
         Gizmos.DrawLine(position, new Vector3(position.x + size_x, 0, position.z));
@@ -192,7 +203,7 @@ public class Node : MonoBehaviour
         Gizmos.DrawLine(new Vector3(position.x + size_x, 0, position.z + size_z), new Vector3(position.x , 0, position.z + size_z));
 
         // Top Left to Bottom Left
-        Gizmos.DrawLine(new Vector3(position.x, 0, position.z + size_z), position);
+        Gizmos.DrawLine(new Vector3(position.x, 0, position.z + size_z), position);*/
 
         // if this node has not been divided we have a building area...
         if (!divided)

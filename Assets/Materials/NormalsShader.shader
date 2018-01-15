@@ -2,8 +2,9 @@
 {
 	Properties
 	{
-		_FloorTex("Floor Texture", 2D) = "white" {}
-		_WallTex("Wall Texture", 2D) = "white" {}
+		_RoofTex("Roof Texture", 2D) = "white" {}
+		_WallTex("Wall Texture", 2D)   = "white" {}
+		_SlopeTex("Slope Texture", 2D) = "white" {}
 	}
 
 		SubShader
@@ -16,18 +17,26 @@
 
 		struct Input {
 		float3 worldNormal;
-		float2 uv_FloorTex;
+		float2 uv_RoofTex;
 		float2 uv_WallTex;
+		float2 uv_SlopeTex;
 	};
 
-	sampler2D _FloorTex;
+	sampler2D _RoofTex;
 	sampler2D _WallTex;
+	sampler2D _SlopeTex;
 
 	void surf(Input IN, inout SurfaceOutputStandard o) {
 		// Floor
 		if (IN.worldNormal.y > 0.9)
 		{
-			o.Albedo = tex2D(_FloorTex, IN.uv_FloorTex).rgb;
+			o.Albedo = tex2D(_RoofTex, IN.uv_RoofTex).rgb;
+		}
+
+		// Slant
+		else if (IN.worldNormal.y > 0.1)
+		{
+			o.Albedo = tex2D(_SlopeTex, IN.uv_SlopeTex).rgb;
 		}
 
 		// Wall

@@ -15,6 +15,9 @@ public class BuildingGenerator : MonoBehaviour
 
         var building_base = Instantiate(building_root, Vector3.zero, Quaternion.identity);
 
+        building_base.AddComponent<BoxCollider>();
+        building_base.GetComponent<BoxCollider>().size = new Vector3(size_x, 1, size_z);
+
         MeshFilter filter_one = build_block_one.gameObject.GetComponent<MeshFilter>();
         MeshFilter filter_two = build_block_two.gameObject.GetComponent<MeshFilter>();
 
@@ -26,7 +29,11 @@ public class BuildingGenerator : MonoBehaviour
 
         float length = size_x;// 1.0f;
         float width = size_z;// 1.0f;
-        float height = size_x + size_z;
+
+        int size = Random.Range(0, 3);
+
+        float height = size_x + size_z / 10 * Random.Range(10, 40);
+
 
         #region Vertices
         Vector3 pos_0 = new Vector3(-width * 0.5f, -height * 0.5f, length * 0.5f);
@@ -179,59 +186,21 @@ public class BuildingGenerator : MonoBehaviour
             pos_x = build_block_two.transform.position.x - width_2 / 10;
         }
 
+        float height_2 = build_block_two.GetComponent<Renderer>().bounds.size.y / 2;
 
 
-        build_block_one.transform.position = new Vector3(build_block_one.transform.position.x, 0, build_block_one.transform.position.z);
-        build_block_two.transform.position = new Vector3(pos_x, 0, build_block_two.transform.position.z);
+
+        build_block_one.transform.position = new Vector3(build_block_one.transform.position.x, height_2, build_block_one.transform.position.z);
+        build_block_two.transform.position = new Vector3(pos_x, height_2, build_block_two.transform.position.z);
 
         build_block_one.transform.parent = building_base.transform;
 
         build_block_two.transform.parent = building_base.transform;
 
-        //building_base.GetComponent<MeshCombine>().CombineMeshes();
+        building_base.GetComponent<MeshCombine>().CombineMeshes();
 
         building_base.transform.position = new Vector3(_parent_pos.x + size_x, 0, _parent_pos.z + size_z);
 
         return building_base;
-        /*
-        var new_building_component1 = Instantiate(block_mesh_component, Vector3.zero, Quaternion.identity);
-        var new_building_component2 = Instantiate(block_mesh_component, Vector3.zero, Quaternion.identity);
-
-        var building_base = Instantiate(building_root, Vector3.zero, Quaternion.identity);
-
-        new_building_component1.GetComponent<ProceduralMesh>().Initialise(_scale / 2);
-        new_building_component2.GetComponent<ProceduralMesh>().Initialise(_scale / 3);
-
-        float height_1 = new_building_component1.GetComponent<Renderer>().bounds.size.y / 2;
-        float height_2 = new_building_component2.GetComponent<Renderer>().bounds.size.y / 2;
-
-        float width_2 = new_building_component2.GetComponent<Renderer>().bounds.size.x;
-
-        float pos_x = 0;
-
-        if (Random.Range(0, 10) >= 5)
-        {
-            pos_x = new_building_component2.transform.position.x + width_2;
-        }
-
-        else
-        {
-            pos_x = new_building_component2.transform.position.x - width_2;
-        }
-
-
-
-        new_building_component1.transform.position = new Vector3(new_building_component1.transform.position.x, height_1, new_building_component1.transform.position.z);
-        new_building_component2.transform.position = new Vector3(pos_x, height_2, new_building_component2.transform.position.z);
-
-        new_building_component1.transform.parent = building_base.transform;
-
-        new_building_component2.transform.parent = building_base.transform;
-
-        building_base.GetComponent<MeshCombine>().CombineMeshes();
-
-        building_base.transform.position = new Vector3(_parent_pos.x + size_x, 0, _parent_pos.z + size_z);
-    
-        return building_base;*/
     }
 }
