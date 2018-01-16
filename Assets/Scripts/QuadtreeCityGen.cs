@@ -3,11 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class QuadtreeRoadGen : MonoBehaviour
+public class QuadtreeCityGen : MonoBehaviour
 {
     [SerializeField] int grid_height;
     [SerializeField] int grid_width;
-    [SerializeField] int no_positions;
     [SerializeField] int max_depth;
 
     [SerializeField] int divide_count = 2;
@@ -21,6 +20,8 @@ public class QuadtreeRoadGen : MonoBehaviour
     [SerializeField] GameObject junction_parent;
 
     private PerlinPopGen pop_gen;
+
+    private float road_offset;
 
     private List<Vector3> positions;
     private List<Vector3> new_positions;
@@ -41,6 +42,11 @@ public class QuadtreeRoadGen : MonoBehaviour
         nodes = new List<Node>();
         junctions = new List<Junction>();
 
+        SanityCheckInitialSettings();
+
+        // Set the road offset to half a junctions scale
+        road_offset = junction.transform.localScale.x / 2;
+
         pop_gen = this.gameObject.GetComponent<PerlinPopGen>();
 
         pop_gen.SetPerlinNoise(perlin_noise);
@@ -53,17 +59,7 @@ public class QuadtreeRoadGen : MonoBehaviour
 
     void GeneratePositions()
     {
-        /*
-        for(int i = 0; i < no_positions; i++)
-        {
-            Vector3 pos = new Vector3(Random.Range(0, grid_width), 0,
-                Random.Range(0, grid_height));
-
-            population.Add(pos);
-        }*/
-
         pop_gen.GeneratePopData(grid_width, grid_height, positions);
-        //population = pop_gen.GeneratePopData(grid_width, grid_height);
 
         for (int i = 0; i < positions.Count; i++)
         {
@@ -115,18 +111,12 @@ public class QuadtreeRoadGen : MonoBehaviour
 
         nodes.Add(node_obj.GetComponent<Node>());
 
-        var build_gen = this.gameObject.GetComponent<BuildingGenerator>();
+        var build_gen = this.gameObject.GetComponent<ObjectGenerator>();
 
         node_obj.GetComponent<Node>().SetDivideCount(divide_count);
 
         node_obj.GetComponent<Node>().Initialise(Vector3.zero,
-            size_x, size_z, new_positions, max_depth, node, node_parent.transform, junction_positions, nodes, build_gen, 0);
-
-        //node_obj.GetComponent<Node>().AddFuzz();
-
-        //Debug.Log(junction_positions.Count);
-
-        //Debug.Log(nodes.Count);
+            size_x, size_z, new_positions, max_depth, node, node_parent.transform, junction_positions, road_offset, nodes, build_gen, 0);
 
         clean_junction_positions = junction_positions.Distinct().ToList();
 
@@ -156,22 +146,27 @@ public class QuadtreeRoadGen : MonoBehaviour
     }
 
 
+    void SanityCheckInitialSettings()
+    {
+        // Check X + Z are at least half to avoid weird stuff!
+        if(grid_height < grid_width / 2)
+        {
+            grid_height = grid_width / 2;
+        }
+
+        else if (grid_width < grid_height / 2)
+        {
+            grid_width = grid_height / 2;
+        }
+
+        // May need more Sanity checks here later...
+    }
+
+
     private void OnDrawGizmos()
     {
         if (!Application.isPlaying)
             return;
-
-        Gizmos.color = Color.green;
-
-        //Gizmos.DrawWireSphere(new Vector3(0 + grid_height, 0, 0), 3);
-        //Gizmos.DrawWireSphere(new Vector3(0, 0, 0 + grid_width), 3);
-
-        Gizmos.color = Color.white;
-
-        /*foreach (Vector3 pos in clean_junction_positions)
-        {
-            Gizmos.DrawWireSphere(pos, 1);
-        }*/
 
         if (!show_positions)
             return;

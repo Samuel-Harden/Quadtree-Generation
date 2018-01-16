@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class Node : MonoBehaviour
 {
+    [SerializeField] bool gizmos_enabled;
     private Vector3 position;
 
     private float size_x;
@@ -14,7 +15,7 @@ public class Node : MonoBehaviour
     private List<GameObject> child_nodes;
 
     private int no_divisions = 4;
-    private int no_build_depth = 2;
+    private int no_build_depth = 3;
 
     private int divide_count;
 
@@ -23,6 +24,8 @@ public class Node : MonoBehaviour
     Vector3 top_left_pos;
     Vector3 top_right_pos;
 
+    Vector3 new_pos;
+
     private void Start()
     {
         child_nodes = new List<GameObject>();
@@ -30,7 +33,7 @@ public class Node : MonoBehaviour
 
 
     public void Initialise(Vector3 _position, float _size_x, float _size_z,
-        List<Vector3> _positions, int _depth, GameObject _node, Transform _parent_node, List<Vector3> _junction_positions, List<Node> _nodes, BuildingGenerator _build_gen, int _division)
+        List<Vector3> _positions, int _depth, GameObject _node, Transform _parent_node, List<Vector3> _junction_positions, float _road_offset, List<Node> _nodes, ObjectGenerator _object_gen, int _division)
     {
         //Debug.Log("Added Node");
 
@@ -47,17 +50,24 @@ public class Node : MonoBehaviour
         _junction_positions.Add(new Vector3(position.x, 0, position.z + size_z)); // Top Left
         _junction_positions.Add(new Vector3(position.x + size_x, 0, position.z + size_z)); // Top Right
 
-        //Positions used to draw lin renders...
-        float offset_x = size_x / 10;
-        float offset_z = size_z / 10;
+        // Line up positions to size of node
+        bottom_left_pos  = position;
+        bottom_right_pos = new Vector3(position.x + size_x, 0, position.z);
+        top_left_pos     = new Vector3(position.x, 0, position.z + size_z);
+        top_right_pos    = new Vector3(position.x + size_x, 0, position.z + size_z);
+    
 
-        bottom_left_pos  = new Vector3(position.x + offset_x, position.y, position.z + offset_z);
+        // Calculate Road Offset
+        float offset_x = _road_offset;
+        float offset_z = _road_offset;
 
-        bottom_right_pos = new Vector3(position.x + size_x - offset_x, position.y, position.z + offset_z);
+        CreateOffSet(offset_z, offset_z);
 
-        top_right_pos    = new Vector3(position.x + size_x - offset_x, position.y, position.z + size_z - offset_z);
-
-        top_left_pos     = new Vector3(position.x + offset_x, position.y, position.z + size_z - offset_z);
+        // Calculate Pavement Offset
+        offset_x = Vector3.Distance(bottom_left_pos, bottom_right_pos) / 10;
+        offset_z = Vector3.Distance(bottom_left_pos, top_left_pos) / 10;
+    
+        CreateOffSet(offset_x, offset_z);
 
         transform.parent = _parent_node.transform;
 
@@ -68,14 +78,29 @@ public class Node : MonoBehaviour
             {
                 divided = true;
                 _division++;
-                Divide(_positions, _depth, _node, _parent_node, _junction_positions, _nodes, _build_gen, _division);
+                Divide(_positions, _depth, _node, _parent_node, _junction_positions, _road_offset, _nodes, _object_gen, _division);
             }
         }
 
 
         // if this node hasn't been divided, and it deeper than the x division
         if (!divided && _division > no_build_depth)
-            GenerateBuilding(_build_gen);
+            GenerateBuilding(_object_gen, _road_offset);
+
+        else if (!divided && _division <= no_build_depth)
+            GeneratePark(_object_gen, _road_offset);
+    }
+
+
+    private void CreateOffSet(float _offset_x, float _offset_z)
+    {
+        bottom_left_pos = new Vector3(bottom_left_pos.x + _offset_x, bottom_left_pos.y, bottom_left_pos.z + _offset_z);
+
+        bottom_right_pos = new Vector3(bottom_right_pos.x -_offset_x, bottom_right_pos.y, bottom_right_pos.z + _offset_z);
+
+        top_right_pos = new Vector3(top_right_pos.x - _offset_x, top_right_pos.y, top_right_pos.z - _offset_z);
+
+        top_left_pos = new Vector3(top_left_pos.x + _offset_x, top_left_pos.y, top_left_pos.z - _offset_z);
     }
 
 
@@ -103,7 +128,7 @@ public class Node : MonoBehaviour
     }
 
 
-    void Divide(List<Vector3> _positions, int _depth, GameObject _node, Transform _parent_node, List<Vector3> _junction_positions, List<Node> _nodes, BuildingGenerator _build_gen, int _division)
+    void Divide(List<Vector3> _positions, int _depth, GameObject _node, Transform _parent_node, List<Vector3> _junction_positions, float _road_offset, List<Node> _nodes, ObjectGenerator _object_gen, int _division)
     {
         // Each recursion this should go down one
         _depth -= 1;
@@ -126,7 +151,7 @@ public class Node : MonoBehaviour
 
             node_obj.GetComponent<Node>().SetDivideCount(divide_count);
 
-            node_obj.GetComponent<Node>().Initialise(new_position, new_size_x, new_size_z, _positions, _depth, _node, _parent_node.transform, _junction_positions, _nodes, _build_gen, _division);
+            node_obj.GetComponent<Node>().Initialise(new_position, new_size_x, new_size_z, _positions, _depth, _node, _parent_node.transform, _junction_positions, _road_offset, _nodes, _object_gen, _division);
 
             new_position.x += size_x / 2;
 
@@ -165,21 +190,29 @@ public class Node : MonoBehaviour
     }*/
 
 
-    private void GenerateBuilding(BuildingGenerator _build_gen)
+    private void GenerateBuilding(ObjectGenerator _object_gen, float _road_offset)
     {
-        float scale = size_x / 10 * 6;
+        float x = Vector3.Distance(bottom_left_pos, bottom_right_pos);
+        float z = Vector3.Distance(bottom_left_pos, top_left_pos);
 
-        var new_building = _build_gen.GenerateBuilding(transform.position, (size_x / 2), (size_z / 2), scale);
+        new_pos = new Vector3(bottom_left_pos.x + (x / 2), 0, bottom_left_pos.z + (z / 2));
 
-        //var build = Instantiate(building, position, Quaternion.identity);
-
-        //float scale = size_x / 10 * 6;
-
-        //build.GetComponent<ProceduralMesh>().Initialise(scale);
+        var new_building = _object_gen.GenerateBuilding(new_pos, x, z);
 
         new_building.transform.parent = this.transform;
+    }
 
-        //build.transform.position = new Vector3(position.x + (size_x / 2), scale, position.z + (size_z / 2));
+
+    private void GeneratePark(ObjectGenerator _object_gen, float _road_offset)
+    {
+        float x = Vector3.Distance(bottom_left_pos, bottom_right_pos);
+        float z = Vector3.Distance(bottom_left_pos, top_left_pos);
+
+        new_pos = new Vector3(bottom_left_pos.x + (x / 2), 0, bottom_left_pos.z + (z / 2));
+
+        var new_park = _object_gen.GeneratePark(new_pos, x, z);
+
+        new_park.transform.parent = this.transform;
     }
 
 
@@ -191,29 +224,33 @@ public class Node : MonoBehaviour
 
     private void OnDrawGizmos()
     {
-        /*Gizmos.color = Color.blue;
-
-        // Bottom Left to Bottom Right
-        Gizmos.DrawLine(position, new Vector3(position.x + size_x, 0, position.z));
-
-        // Bottom Right to Top Right
-        Gizmos.DrawLine(new Vector3(position.x + size_x, 0, position.z), new Vector3(position.x + size_x, 0, position.z + size_z));
-
-        // Top Right to Top Left
-        Gizmos.DrawLine(new Vector3(position.x + size_x, 0, position.z + size_z), new Vector3(position.x , 0, position.z + size_z));
-
-        // Top Left to Bottom Left
-        Gizmos.DrawLine(new Vector3(position.x, 0, position.z + size_z), position);*/
-
-        // if this node has not been divided we have a building area...
-        if (!divided)
+        if (gizmos_enabled)
         {
-            Gizmos.color = Color.red;
+            Gizmos.color = Color.green;
 
-            Gizmos.DrawLine(bottom_left_pos, bottom_right_pos);
-            Gizmos.DrawLine(bottom_right_pos, top_right_pos);
-            Gizmos.DrawLine(top_right_pos, top_left_pos);
-            Gizmos.DrawLine(top_left_pos, bottom_left_pos);
+            Gizmos.DrawWireSphere(new_pos, 1);
+            /*// Bottom Left to Bottom Right
+            Gizmos.DrawLine(position, new Vector3(position.x + size_x, 0, position.z));
+
+            // Bottom Right to Top Right
+            Gizmos.DrawLine(new Vector3(position.x + size_x, 0, position.z), new Vector3(position.x + size_x, 0, position.z + size_z));
+
+            // Top Right to Top Left
+            Gizmos.DrawLine(new Vector3(position.x + size_x, 0, position.z + size_z), new Vector3(position.x , 0, position.z + size_z));
+
+            // Top Left to Bottom Left
+            Gizmos.DrawLine(new Vector3(position.x, 0, position.z + size_z), position);*/
+
+            // if this node has not been divided we have a building area...
+            if (!divided)
+            {
+                Gizmos.color = Color.red;
+
+                Gizmos.DrawLine(bottom_left_pos, bottom_right_pos);
+                Gizmos.DrawLine(bottom_right_pos, top_right_pos);
+                Gizmos.DrawLine(top_right_pos, top_left_pos);
+                Gizmos.DrawLine(top_left_pos, bottom_left_pos);
+            }
         }
     }
 }

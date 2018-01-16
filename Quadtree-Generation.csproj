@@ -78,20 +78,21 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\Scripts\BuildingGenerator.cs" />
-    <Compile Include="Assets\Scripts\CubeMeshData.cs" />
+    <Compile Include="Assets\Scripts\CuboidMesh.cs" />
     <Compile Include="Assets\Scripts\Junction.cs" />
     <Compile Include="Assets\Scripts\MeshCombine.cs" />
     <Compile Include="Assets\Scripts\MeshCombineEditor.cs" />
     <Compile Include="Assets\Scripts\Node.cs" />
+    <Compile Include="Assets\Scripts\OLD\CubeMeshData.cs" />
+    <Compile Include="Assets\Scripts\OLD\ProceduralMesh.cs" />
+    <Compile Include="Assets\Scripts\ObjectGenerator.cs" />
     <Compile Include="Assets\Scripts\PerlinPopGen.cs" />
-    <Compile Include="Assets\Scripts\ProceduralMesh.cs" />
     <Compile Include="Assets\Scripts\QuadTreeRoot.cs" />
-    <Compile Include="Assets\Scripts\QuadtreeRoadGen.cs" />
+    <Compile Include="Assets\Scripts\QuadtreeCityGen.cs" />
     <Compile Include="Assets\Test.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Assets\Materials\NormalsShader.shader" />
+    <None Include="Assets\Materials\Shader\NormalsShader.shader" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="GenerateTargetFrameworkMonikerAttribute" />

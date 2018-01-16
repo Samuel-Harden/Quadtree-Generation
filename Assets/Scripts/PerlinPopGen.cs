@@ -23,7 +23,7 @@ public class PerlinPopGen : MonoBehaviour
 
                 population.Add(result);
 
-                Vector3 pos = new Vector3(h, 0, w);
+                Vector3 pos = new Vector3(w, 0, h);
                 _positions.Add(pos);
             }
         }
