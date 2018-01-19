@@ -12,6 +12,8 @@ public class QuadtreeCityGen : MonoBehaviour
     [SerializeField] int divide_count = 2;
     [SerializeField] int perlin_noise = 10;
 
+    //[SerializeField] int no_positions = 10;
+
     [SerializeField] bool show_positions;
 
     [SerializeField] GameObject node;
@@ -59,6 +61,13 @@ public class QuadtreeCityGen : MonoBehaviour
 
     void GeneratePositions()
     {
+        /*for (int i = 0; i < no_positions; i++)
+        {
+            Vector3 pos = new Vector3(Random.Range(0, grid_width), 0, Random.Range(0, grid_height));
+
+            new_positions.Add(pos);
+        }*/
+
         pop_gen.GeneratePopData(grid_width, grid_height, positions);
 
         for (int i = 0; i < positions.Count; i++)

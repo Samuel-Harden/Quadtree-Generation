@@ -226,10 +226,10 @@ public class Node : MonoBehaviour
     {
         if (gizmos_enabled)
         {
-            Gizmos.color = Color.green;
+            /*Gizmos.color = Color.green;
 
             Gizmos.DrawWireSphere(new_pos, 1);
-            /*// Bottom Left to Bottom Right
+            // Bottom Left to Bottom Right
             Gizmos.DrawLine(position, new Vector3(position.x + size_x, 0, position.z));
 
             // Bottom Right to Top Right
